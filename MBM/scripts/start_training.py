@@ -42,7 +42,7 @@ LOSS_NAMES = ["cross-entropy", "soft-labels", "hierarchical-cross-entropy", "cos
               "ours-l5-cejsd", "ours-l7-cejsd", "ours-l12-cejsd",
               "ours-l5-cejsd-wtconst", "ours-l7-cejsd-wtconst", "ours-l12-cejsd-wtconst",
               "ours-l5-cejsd-wtconst-dissim", "ours-l7-cejsd-wtconst-dissim", "ours-l12-cejsd-wtconst-dissim"]
-OPTIMIZER_NAMES = ["adagrad", "adam", "adam_amsgrad", "rmsprop", "SGD", "custom_sgd"]
+OPTIMIZER_NAMES = ["adagrad", "adam", "adamw", "adam_amsgrad", "rmsprop", "SGD", "custom_sgd"]
 DATASET_NAMES = ["tiered-imagenet-84", "inaturalist19-84", "tiered-imagenet-224", "inaturalist19-224", "cifar-100"]
 
 # config = None
@@ -313,6 +313,8 @@ def _select_optimizer(model, opts):
         return torch.optim.Adagrad(model.parameters(), opts.lr, weight_decay=opts.weight_decay)
     elif opts.optimizer == "adam":
         return torch.optim.Adam(model.parameters(), opts.lr, weight_decay=opts.weight_decay, amsgrad=False)
+    elif opts.optimizer == "adamw":
+        return torch.optim.AdamW(model.parameters(), opts.lr)
     elif opts.optimizer == "adam_amsgrad":
         if opts.devise or opts.barzdenzler:
             if opts.data == "inaturalist19-224" or opts.data == "tiered-imagenet-224":

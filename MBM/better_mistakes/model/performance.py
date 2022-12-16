@@ -36,3 +36,20 @@ def accuracy(output, target, ks=(1,)):
             correct_k = correct[:k].reshape(-1).float().sum(0, keepdim=True)
             res.append(correct_k.mul_(1.0 / batch_size))
         return res, pred_
+
+# def accuracy(output, target, ks=(1,)):
+#     """Computes the accuracy over the k top predictions for the specified values of k"""
+#     with torch.no_grad():
+#         maxk = max(ks)
+#         batch_size = target.size(0)
+
+#         # CRM = False, ERM = True
+#         _, pred_ = output.topk(maxk, 1, True, True)
+#         pred = pred_.t()
+#         correct = pred.eq(target.view(1, -1).expand_as(pred))
+
+#         res = []
+#         for k in ks:
+#             correct_k = correct[:k].reshape(-1).float().sum(0, keepdim=True)
+#             res.append(correct_k.mul_(1.0 / batch_size))
+#         return res, pred_
