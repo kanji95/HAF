@@ -5,6 +5,8 @@
 
 import json
 import numpy as np
+from collections import defaultdict
+
 import torch
 import torch.utils.data as data
 from PIL import Image
@@ -156,6 +158,12 @@ class iNaturalist(data.Dataset):
         self._taxonomy, self._classes_taxonomic = load_taxonomy(
             ann_data, self._classes
         )
+        
+        self.reverse_mapping_index = defaultdict(list)
+        classes_taxonomic = self._classes_taxonomic
+
+        for key in classes_taxonomic:
+            self.reverse_mapping_index[classes_taxonomic[key][1]].append(classes_taxonomic[key][0])
         
         self.classes = sorted(list(set(self._classes)))
         self.classes = [f'nat{x:04}' for x in self.classes]

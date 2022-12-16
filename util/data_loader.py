@@ -13,7 +13,7 @@ import torch
 import os
 
 from torchvision import transforms, datasets
-from MBM.better_mistakes.data.transforms import train_transforms, val_transforms
+from MBM.better_mistakes.data.transforms import train_transforms, val_transforms, build_transform
 from MBM.better_mistakes.trees import load_hierarchy, get_weighting, load_distances, get_classes
 
 from .inaturalist_loader import iNaturalist
@@ -67,7 +67,8 @@ def test_data_loader(opts):
         transform_test = transforms.Compose([ToTensor()])
         test_dataset = get_cifar100(test_dir, test=True, transform_val=transform_test)
     elif "inaturalist19" in opts.data:
-        test_dataset = iNaturalist(root=opts.data_path, mode="validation", transform=val_transforms(opts.data, normalize=True, resize=opts.target_size), taxonomy=opts.taxonomy)
+        # test_dataset = iNaturalist(root=opts.data_path, mode="validation", transform=val_transforms(opts.data, normalize=True, resize=opts.target_size), taxonomy=opts.taxonomy)
+        test_dataset = iNaturalist(root=opts.data_path, mode="validation", transform=build_transform(False, opts), taxonomy=opts.taxonomy)
     elif "tiered-imagenet" in opts.data:
         test_dataset = TieredImagenetH(root=opts.data_path, mode="val", transform=val_transforms(opts.data, normalize=True, resize=opts.target_size))
     else:
@@ -76,7 +77,7 @@ def test_data_loader(opts):
 
     # check that classes are loaded in the right order
 
-    assert is_sorted([d[0] for d in test_dataset.class_to_idx.items()])
+    # assert is_sorted([d[0] for d in test_dataset.class_to_idx.items()])
 
     # get data loaders
     test_loader = torch.utils.data.DataLoader(

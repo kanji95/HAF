@@ -27,7 +27,7 @@ LOSS_NAMES = ["cross-entropy", "soft-labels", "hierarchical-cross-entropy", "cos
               "ours-l5-cejsd", "ours-l7-cejsd", "ours-l12-cejsd",                                                   # HAF with only Soft Hierarchical Consistency Loss (Section 3.2)
               "ours-l5-cejsd-wtconst", "ours-l7-cejsd-wtconst", "ours-l12-cejsd-wtconst",                           # HAF with Soft Hierarchical Consistency Loss (Section 3.2) + Geometric Consistency Loss (Section 3.4)
               "ours-l5-cejsd-wtconst-dissim", "ours-l7-cejsd-wtconst-dissim", "ours-l12-cejsd-wtconst-dissim"]      # HAF with all three losses (Section 3.2, 3.3, 3.4)
-OPTIMIZER_NAMES = ["adagrad", "adam", "adam_amsgrad", "rmsprop", "SGD", "custom_sgd"]
+OPTIMIZER_NAMES = ["adagrad", "adam", "adamw", "adam_amsgrad", "rmsprop", "SGD", "custom_sgd"]
 DATASET_NAMES = ["tiered-imagenet-84", "inaturalist19-84", "tiered-imagenet-224", "inaturalist19-224", "cifar-100"] 
 
 

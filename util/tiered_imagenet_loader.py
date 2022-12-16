@@ -11,7 +11,7 @@ from util.trees import load_hierarchy
 # from torchvision.datasets.folder import DatasetFolder, default_loader
 
 class TieredImagenetH(Dataset):
-    def __init__(self, root="/media/newhd/Imagenet2012/Imagenet-orig/", mode="train", transform=None, is_parent=True):
+    def __init__(self, root="/media/newhd/Imagenet2012/Imagenet-orig/", mode="train", transform=None, is_parent=False):
         
         imagenet_split = "train" if mode == "train" else "val"
         self.imagenet_dir = os.path.join(root, imagenet_split)

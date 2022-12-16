@@ -15,9 +15,9 @@ from torchvision import transforms
 
 from MBM.better_mistakes.data import cifar100
 from MBM.better_mistakes.data.softmax_cascade import SoftmaxCascade
-from MBM.better_mistakes.model.init import init_model_on_gpu
+from MBM.better_mistakes.model.init import init_model_on_gpu, init_model_on_gpu_test
 from MBM.better_mistakes.data.transforms import val_transforms
-from MBM.better_mistakes.model.run_xent import run
+from MBM.better_mistakes.model.run_xent import run, run_post_hoc
 from MBM.better_mistakes.model.run_nn import run_nn
 from MBM.better_mistakes.model.labels import make_all_soft_labels
 from MBM.better_mistakes.util.label_embeddings import create_embedding_layer
@@ -59,6 +59,8 @@ def main(test_opts):
 
         opts.start = test_opts.start # to update value of start if testing
 
+    opts.input_size = 224
+    
     # Setup data loaders ------------------------------------------------------------------------------------------
     test_dataset, test_loader = data_loader.test_data_loader(opts)
 
@@ -76,6 +78,12 @@ def main(test_opts):
             classes = test_dataset.classes
 
     opts.num_classes = len(classes)
+    
+    opts.aux_num_classes = 72
+    opts.checkpoint_path = "/home/kanishk/mae/output_dir/resnet18_inaturalist_species_63.36.pth"
+    opts.aux_checkpoint_path = "/home/kanishk/mae/output_dir/resnet18_inaturalist_genus_89.0.pth"
+    
+    opts.post_hoc = True
 
     # Model, loss, optimizer ------------------------------------------------------------------------------------------------------------------------------
 
@@ -133,24 +141,41 @@ def main(test_opts):
     summaries, summaries_table = dict(), dict()
 
     # setup model
-    model = init_model_on_gpu(gpus_per_node, opts)
+    model, aux_model = init_model_on_gpu_test(gpus_per_node, opts, return_aux_model=True)
     
-    if opts.checkpoint_path is None:
-        checkpoint_id = "best.checkpoint.pth.tar"
-        checkpoint_path = os.path.join(test_opts.out_folder, checkpoint_id)
-    else:
-        checkpoint_path = opts.checkpoint_path
-    # checkpoint_path = os.path.join(test_opts.pretrained_folder, checkpoint_id)
-    if os.path.isfile(checkpoint_path):
-        checkpoint = torch.load(checkpoint_path)
-        model.load_state_dict(checkpoint["state_dict"])
-        logger._print("=> loaded checkpoint '{}'".format(checkpoint_path), os.path.join(test_opts.out_folder, "logs.txt"))
-    else:
-        logger._print("=> no checkpoint found at '{}'".format(checkpoint_path), os.path.join(test_opts.out_folder, "logs.txt"))
-        raise RuntimeError
+    # if opts.checkpoint_path is None:
+    #     checkpoint_id = "best.checkpoint.pth.tar"
+    #     checkpoint_path = os.path.join(test_opts.out_folder, checkpoint_id)
+    # else:
+    #     checkpoint_path = opts.checkpoint_path
+        
+    # if opts.aux_checkpoint_path is None:
+    #     aux_checkpoint_id = "best.checkpoint.pth.tar"
+    #     aux_checkpoint_path = os.path.join(test_opts.out_folder, aux_checkpoint_id)
+    # else:
+    #     aux_checkpoint_path = opts.aux_checkpoint_path
+        
+    # # checkpoint_path = os.path.join(test_opts.pretrained_folder, checkpoint_id)
+    # if os.path.isfile(checkpoint_path):
+    #     checkpoint = torch.load(checkpoint_path)
+    #     model.load_state_dict(checkpoint["model"])
+    #     logger._print("=> loaded checkpoint '{}'".format(checkpoint_path), os.path.join(test_opts.out_folder, "logs.txt"))
+    # else:
+    #     logger._print("=> no checkpoint found at '{}'".format(checkpoint_path), os.path.join(test_opts.out_folder, "logs.txt"))
+    #     raise RuntimeError
+    
+    # if os.path.isfile(aux_checkpoint_path):
+    #     aux_checkpoint_path = torch.load(aux_checkpoint_path)
+    #     aux_model.load_state_dict(aux_checkpoint_path["model"])
+    #     logger._print("=> loaded checkpoint '{}'".format(aux_checkpoint_path), os.path.join(test_opts.out_folder, "logs.txt"))
+    # else:
+    #     logger._print("=> no checkpoint found at '{}'".format(aux_checkpoint_path), os.path.join(test_opts.out_folder, "logs.txt"))
+    #     raise RuntimeError
 
     if opts.devise or opts.barzdenzler:
         summary, _ = run_nn(test_loader, model, loss_function, distances, classes, opts, 0, 0, emb_layer, embeddings_mat, is_inference=True)
+    if opts.post_hoc:
+        summary, _ = run_post_hoc(test_loader, model, aux_model, loss_function, distances, soft_labels, classes, opts, 0, 0, is_inference=True, corrector=corrector)
     else:
         summary, _ = run(test_loader, model, loss_function, distances, soft_labels, classes, opts, 0, 0, is_inference=True, corrector=corrector)
 
@@ -186,6 +211,9 @@ if __name__ == "__main__":
     parser.add_argument("--data_dir", default="../../data/", help="Folder containing the supplementary data")
     parser.add_argument("--workers", default=2, type=int, help="number of data loading workers")
     parser.add_argument("--gpu", default=0, type=int, help="GPU id to use.")
+    
+    parser.add_argument("--num_classes", default=1010, type=int, help="Num fine classes.")
+    parser.add_argument("--aux_num_classes", default=72, type=int, help="Num coarse classes.")
     test_opts = parser.parse_args()
 
     main(test_opts)
