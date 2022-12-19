@@ -69,6 +69,7 @@ if __name__ == "__main__":
     parser.add_argument("--output", default="out/", help="path to the model folder")
     parser.add_argument("--expm_id", default="", type=str, help="Name log folder as: out/<scriptname>/<date>_<expm_id>. If empty, expm_id=time")
     parser.add_argument("--taxonomy",default="species",type=str,help='taxonomy to choose')
+    parser.add_argument("--is_parent", default=False, action='store_true', help='tiered imagenet hierarchy')
     # Log/val -------------------------------------------------------------------------------------------------------------------------------------------------
     parser.add_argument("--log_freq", default=100, type=int, help="Log every log_freq batches")
     parser.add_argument("--val_freq", default=1, type=int, help="Validate every val_freq epochs (except the first 10 and last 10)")

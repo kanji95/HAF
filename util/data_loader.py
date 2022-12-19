@@ -32,13 +32,9 @@ def train_data_loader(opts):
     elif "inaturalist19" in opts.data:
         train_dataset = iNaturalist(root=opts.data_path, mode="train", transform=train_transforms(opts.target_size, opts.data, augment=opts.data_augmentation, normalize=True), taxonomy=opts.taxonomy)
         val_dataset = iNaturalist(root=opts.data_path, mode="validation", transform=val_transforms(opts.data, normalize=True, resize=opts.target_size), taxonomy=opts.taxonomy)
-        # train_dir = os.path.join(opts.data_path, "train")
-        # val_dir = os.path.join(opts.data_path, "val")
-        # train_dataset = datasets.ImageFolder(train_dir, train_transforms(opts.target_size, opts.data, augment=opts.data_augmentation, normalize=True))
-        # val_dataset = datasets.ImageFolder(val_dir, val_transforms(opts.data, normalize=True, resize=opts.target_size))
     elif "tiered-imagenet" in opts.data:
-        train_dataset = TieredImagenetH(root=opts.data_path, mode="train", transform=train_transforms(opts.target_size, opts.data, augment=opts.data_augmentation, normalize=True))
-        val_dataset = TieredImagenetH(root=opts.data_path, mode="val", transform=val_transforms(opts.data, normalize=True, resize=opts.target_size))
+        train_dataset = TieredImagenetH(root=opts.data_path, mode="train", transform=train_transforms(opts.target_size, opts.data, augment=opts.data_augmentation, normalize=True), is_parent=opts.is_parent)
+        val_dataset = TieredImagenetH(root=opts.data_path, mode="val", transform=val_transforms(opts.data, normalize=True, resize=opts.target_size), is_parent=opts.is_parent)
     else:
         train_dir = os.path.join(opts.data_path, "train_images")
         val_dir = os.path.join(opts.data_path, "val_images")
