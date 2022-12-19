@@ -88,7 +88,7 @@ def main_worker(gpus_per_node, opts):
     if opts.epochs == None:
         opts.epochs = int(round(opts.num_training_steps / num_batches))
 
-    opts.num_classes = train_dataset.num_classes
+    opts.num_classes = len(classes)
     print("num_classes: ", opts.num_classes)
 
     # shuffle hierarchy nodes

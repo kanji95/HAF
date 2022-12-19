@@ -2,9 +2,10 @@
     
     TODO: missing credits.
 """
-
+import os
 import json
 import numpy as np
+from glob import glob
 from collections import defaultdict
 
 import torch
@@ -106,7 +107,7 @@ ANN_FILE = {
 
 
 class iNaturalist(data.Dataset):
-    def __init__(self, root, mode="train", transform=None, full_info=False, taxonomy="species"):
+    def __init__(self, root, mode="train", transform=None, taxonomy="species"):
         """ A Dataset for iNaturalist data.
         
         Args:
@@ -123,9 +124,17 @@ class iNaturalist(data.Dataset):
         """
 
         self._mode = mode
-        self._full_info=full_info
-
-        self.taxonomy = taxonomy
+        self.taxonomy_name = taxonomy
+        
+        split = "train" if mode == "train" else "val"
+        self.inaturalist_dir = os.path.join(root, split)
+        
+        split_path = os.path.join("./data/splits_inat19/", split)
+        class_files = glob(split_path + "/*")
+        
+        self.classes = sorted([os.path.splitext(os.path.basename(cls_file))[0] for cls_file in class_files])
+        self.num_classes = TAXONOMY_NUM[self.taxonomy_name]
+        self.class_to_idx = {cls_name: i for i, cls_name in enumerate(self.classes)}
 
         # make pathlib.Paths
         ann_file = ANN_FILE[mode]
@@ -141,7 +150,7 @@ class iNaturalist(data.Dataset):
         with open(ann_file) as data_file:
             ann_data = json.load(data_file)
 
-        # set up the filenames and annotations
+        # # set up the filenames and annotations
         self._img_paths = [root / aa["file_name"] for aa in ann_data["images"]]
 
         # if we dont have class labels set them to '0'
@@ -150,59 +159,61 @@ class iNaturalist(data.Dataset):
         else:
             self._classes = [0] * len(self._img_paths)
 
-        self._num_classes = TAXONOMY_NUM[self.taxonomy]# len(set(self._classes))
-
-        # get image id
-        self._img_ids = [aa["id"] for aa in ann_data["images"]]
-        # load taxonomy
         self._taxonomy, self._classes_taxonomic = load_taxonomy(
             ann_data, self._classes
         )
+        self._taxonomy['species'] = self._taxonomy['id']
         
         self.reverse_mapping_index = defaultdict(list)
-        classes_taxonomic = self._classes_taxonomic
 
-        for key in classes_taxonomic:
-            self.reverse_mapping_index[classes_taxonomic[key][1]].append(classes_taxonomic[key][0])
+        for child_key in self._taxonomy['genus']:
+            parent_key = self._taxonomy['genus'][child_key]
+            self.reverse_mapping_index[parent_key].append(child_key)
         
         self.classes = sorted(list(set(self._classes)))
         self.classes = [f'nat{x:04}' for x in self.classes]
         
+        self.samples = []
+        for class_file in class_files:
+            class_name = os.path.splitext(os.path.basename(class_file))[0]
+            with open(class_file, 'r') as f:
+                image_names = f.readlines()
+            image_names = [image_name.strip() for image_name in image_names]
+            
+            species_id = self.class_to_idx[class_name]
+            tax_id = self._taxonomy[self.taxonomy_name][species_id]
+            
+            class_samples = [(os.path.join(self.inaturalist_dir, class_name, image_name), tax_id) for image_name in image_names]
+            self.samples.extend(class_samples)
+        
         # image loading, preprocessing and augmentations
         self.loader = default_loader
-        if transform:
-            self.transform = transform
-        else:
-            self.transform = _get_transform(mode)
+        
+        self.transform = transform
 
         # print out some stats
-        print(f"iNaturalist: found {len(self._img_paths)} images.")
+        print(f"iNaturalist: found {len(self.samples)} images.")
         print(f"iNaturalist: found {self.num_classes} classes.")
     
-    @property
-    def num_classes(self):
-        return self._num_classes
-
     def __getitem__(self, index):
-        img = self.loader(self._img_paths[index])
-        species_id = self._classes[index]  # class
+        
+        img_path, tax_id = self.samples[index]
+        img = Image.open(img_path).convert("RGB")
 
         if self.transform:
             img = self.transform(img)
 
-        tax_id = self._classes_taxonomic[species_id]
-
         # target = torch.zeros(self.num_classes)
-        # target[tax_id[TAXONOMY_MAP[self.taxonomy]]] = 1
+        # target[tax_id] = 1
 
-        return img, tax_id[TAXONOMY_MAP[self.taxonomy]]
+        return img, tax_id
     
     def __str__(self):
         details = f"len={len(self)}, mode={self._mode}, root={self._root}"
         return f"iNaturalistDataset({details})"
 
     def __len__(self):
-        return len(self._img_paths)
+        return len(self.samples)
 
 
 if __name__ == "__main__":

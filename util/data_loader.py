@@ -30,8 +30,12 @@ def train_data_loader(opts):
         transform_val = transforms.Compose([ToTensor()])
         train_dataset, val_dataset = get_cifar100(train_dir, transform_train=transform_train, transform_val=transform_val)
     elif "inaturalist19" in opts.data:
-        train_dataset = iNaturalist(root=opts.data_path, mode="train", transform=train_transforms(opts.target_size, opts.data, augment=opts.data_augmentation, normalize=True), taxonomy=opts.taxonomy)
-        val_dataset = iNaturalist(root=opts.data_path, mode="validation", transform=val_transforms(opts.data, normalize=True, resize=opts.target_size), taxonomy=opts.taxonomy)
+        # train_dataset = iNaturalist(root=opts.data_path, mode="train", transform=train_transforms(opts.target_size, opts.data, augment=opts.data_augmentation, normalize=True), taxonomy=opts.taxonomy)
+        # val_dataset = iNaturalist(root=opts.data_path, mode="validation", transform=val_transforms(opts.data, normalize=True, resize=opts.target_size), taxonomy=opts.taxonomy)
+        train_dir = os.path.join(opts.data_path, "train")
+        val_dir = os.path.join(opts.data_path, "val")
+        train_dataset = datasets.ImageFolder(train_dir, train_transforms(opts.target_size, opts.data, augment=opts.data_augmentation, normalize=True))
+        val_dataset = datasets.ImageFolder(val_dir, val_transforms(opts.data, normalize=True, resize=opts.target_size))
     elif "tiered-imagenet" in opts.data:
         train_dataset = TieredImagenetH(root=opts.data_path, mode="train", transform=train_transforms(opts.target_size, opts.data, augment=opts.data_augmentation, normalize=True))
         val_dataset = TieredImagenetH(root=opts.data_path, mode="val", transform=val_transforms(opts.data, normalize=True, resize=opts.target_size))
@@ -41,7 +45,8 @@ def train_data_loader(opts):
         train_dataset = datasets.ImageFolder(train_dir, train_transforms(opts.target_size, opts.data, augment=opts.data_augmentation, normalize=True))
         val_dataset = datasets.ImageFolder(val_dir, val_transforms(opts.data, normalize=True, resize=opts.target_size))
 
-    assert train_dataset.classes == val_dataset.classes
+    # import pdb; pdb.set_trace()
+    # assert train_dataset.classes == val_dataset.classes
 
     # check that classes are loaded in the right order
 
