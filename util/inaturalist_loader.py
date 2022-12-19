@@ -173,6 +173,18 @@ class iNaturalist(data.Dataset):
         self.classes = sorted(list(set(self._classes)))
         self.classes = [f'nat{x:04}' for x in self.classes]
         
+        if self.taxonomy_name != "species":
+            hierarchy_map = {}
+            with open('./data/inaturalist19_isa.txt') as f:
+                lines = f.readlines()
+                for line in lines:
+                    x, y = line.strip().split()
+                    hierarchy_map[y] = x
+            classes = set()
+            for cls in self.classes:
+                classes.add(hierarchy_map[cls])
+            self.classes = list(classes)
+            
         self.samples = []
         for class_file in class_files:
             class_name = os.path.splitext(os.path.basename(class_file))[0]

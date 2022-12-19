@@ -623,7 +623,8 @@ def run(loader, model, loss_function, distances, all_soft_labels, classes, opts,
     best_hier_similarities = _make_best_hier_similarities(classes, distances, max_dist)
 
     # Using different logging frequencies for training and validation
-    log_freq = 1 if is_inference else opts.log_freq
+    # log_freq = 1 if is_inference else opts.log_freq
+    log_freq = opts.log_freq
 
     # strings useful for logging
     descriptor = "VAL" if is_inference else "TRAIN"

@@ -88,6 +88,7 @@ def main_worker(gpus_per_node, opts):
     if opts.epochs == None:
         opts.epochs = int(round(opts.num_training_steps / num_batches))
 
+    # print(classes)
     opts.num_classes = len(classes)
     print("num_classes: ", opts.num_classes)
 
