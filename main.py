@@ -39,7 +39,7 @@ if __name__ == "__main__":
     parser.add_argument("--optimizer", default="adam_amsgrad", choices=OPTIMIZER_NAMES, help="optimizer type: | ".join(OPTIMIZER_NAMES))
     parser.add_argument("--lr", default=1e-5, type=float, help="initial learning rate of optimizer")
     parser.add_argument("--weight_decay", default=0.0, type=float, help="weight decay of optimizer")
-    parser.add_argument("--pretrained", type=boolean, default=True, help="start from ilsvrc12/imagenet model weights")
+    parser.add_argument("--pretrained", type=boolean, default=False, action='store_true', help="start from ilsvrc12/imagenet model weights")
     parser.add_argument("--pretrained_folder", type=str, default=None, help="folder or file from which to load the network weights")
     parser.add_argument("--dropout", default=0.0, type=float, help="Prob of dropout for network FC layer")
     parser.add_argument("--data_augmentation", type=boolean, default=True, help="Train with basic data augmentation")
