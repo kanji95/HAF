@@ -67,9 +67,11 @@ if __name__ == "__main__":
     parser.add_argument("--data-path", default=None, help="explicit location of the data folder, if None use config file.")
     parser.add_argument("--data_dir", default="data/", help="Folder containing the supplementary data")
     parser.add_argument("--output", default="out/", help="path to the model folder")
+    parser.add_argument("--aux_output", default="out/", help="path to the model folder")
     parser.add_argument("--expm_id", default="", type=str, help="Name log folder as: out/<scriptname>/<date>_<expm_id>. If empty, expm_id=time")
     parser.add_argument("--taxonomy",default="species",type=str,help='taxonomy to choose')
     parser.add_argument("--is_parent", default=False, action='store_true', help='tiered imagenet hierarchy')
+    parser.add_argument("--post_hoc", default=False, action='store_true', help='tiered imagenet hierarchy')
     # Log/val -------------------------------------------------------------------------------------------------------------------------------------------------
     parser.add_argument("--log_freq", default=100, type=int, help="Log every log_freq batches")
     parser.add_argument("--val_freq", default=1, type=int, help="Validate every val_freq epochs (except the first 10 and last 10)")
@@ -80,8 +82,8 @@ if __name__ == "__main__":
     ## CRM ----------------------------------------------------------------------------------
     parser.add_argument("--rerank",default=0,type=int,help='whether to use CRM or not')
     parser.add_argument("--checkpoint_path",default=None,type=str,help='path to the best checkpoint file')
+    parser.add_argument("--aux_checkpoint_path",default=None,type=str,help='path to the best checkpoint file')
     
-
     opts = parser.parse_args()
 
     # setting the path of level-5 distances and pickle file.
@@ -94,6 +96,12 @@ if __name__ == "__main__":
     if not os.path.exists(opts.out_folder):
         print("Making experiment folder and subfolders under: ", opts.out_folder)
         os.makedirs(os.path.join(opts.out_folder))
+        
+    # setup aux_output folder
+    opts.aux_out_folder = opts.aux_output if opts.aux_output else get_expm_folder(__file__, "out", opts.expm_id)
+    if not os.path.exists(opts.aux_out_folder):
+        print("Making experiment folder and subfolders under: ", opts.aux_out_folder)
+        os.makedirs(os.path.join(opts.aux_out_folder))
 
     # set if we want to output soft labels or one hot
     opts.soft_labels = opts.beta != 0

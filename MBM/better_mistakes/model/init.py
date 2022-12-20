@@ -256,16 +256,16 @@ def init_model_on_gpu_test(gpus_per_node, opts, distances=None, return_aux_model
                 model.fc = layer
                 aux_model.fc = layer
                 
-    checkpoint_path = opts.checkpoint_path
-    aux_checkpoint_path = opts.aux_checkpoint_path
+    # checkpoint_path = opts.checkpoint_path
+    # aux_checkpoint_path = opts.aux_checkpoint_path
         
-    checkpoint = torch.load(checkpoint_path)
-    model.load_state_dict(checkpoint["model"])
-    print("=> loaded checkpoint '{}'".format(checkpoint_path))
+    # checkpoint = torch.load(checkpoint_path)
+    # model.load_state_dict(checkpoint["model"])
+    # print("=> loaded checkpoint '{}'".format(checkpoint_path))
     
-    aux_checkpoint = torch.load(aux_checkpoint_path)
-    aux_model.load_state_dict(aux_checkpoint["model"])
-    print("=> loaded checkpoint '{}'".format(aux_checkpoint_path))
+    # aux_checkpoint = torch.load(aux_checkpoint_path)
+    # aux_model.load_state_dict(aux_checkpoint["model"])
+    # print("=> loaded checkpoint '{}'".format(aux_checkpoint_path))
 
     if distributed:
         # For multiprocessing distributed, DistributedDataParallel constructor

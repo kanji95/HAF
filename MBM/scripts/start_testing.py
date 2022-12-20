@@ -79,12 +79,14 @@ def main(test_opts):
 
     opts.num_classes = len(classes)
     
-    opts.aux_num_classes = 72
-    opts.checkpoint_path = "/home/kanishk/mae/output_dir/resnet18_inaturalist_species_63.36.pth"
-    opts.aux_checkpoint_path = "/home/kanishk/mae/output_dir/resnet18_inaturalist_genus_89.0.pth"
+    if "inaturalist19" in opts.data:
+        opts.aux_num_classes = 72
+    else:
+        opts.aux_num_classes = 201
+        
+    # opts.checkpoint_path = "/home/kanishk/mae/output_dir/resnet18_inaturalist_species_63.36.pth"
+    # opts.aux_checkpoint_path = "/home/kanishk/mae/output_dir/resnet18_inaturalist_genus_89.0.pth"
     
-    opts.post_hoc = True
-
     # Model, loss, optimizer ------------------------------------------------------------------------------------------------------------------------------
 
     # more setup for devise and b+d
@@ -143,34 +145,34 @@ def main(test_opts):
     # setup model
     model, aux_model = init_model_on_gpu_test(gpus_per_node, opts, return_aux_model=True)
     
-    # if opts.checkpoint_path is None:
-    #     checkpoint_id = "best.checkpoint.pth.tar"
-    #     checkpoint_path = os.path.join(test_opts.out_folder, checkpoint_id)
-    # else:
-    #     checkpoint_path = opts.checkpoint_path
+    if opts.checkpoint_path is None:
+        checkpoint_id = "best.checkpoint.pth.tar"
+        checkpoint_path = os.path.join(test_opts.out_folder, checkpoint_id)
+    else:
+        checkpoint_path = opts.checkpoint_path
         
-    # if opts.aux_checkpoint_path is None:
-    #     aux_checkpoint_id = "best.checkpoint.pth.tar"
-    #     aux_checkpoint_path = os.path.join(test_opts.out_folder, aux_checkpoint_id)
-    # else:
-    #     aux_checkpoint_path = opts.aux_checkpoint_path
+    if opts.aux_checkpoint_path is None:
+        aux_checkpoint_id = "best.checkpoint.pth.tar"
+        aux_checkpoint_path = os.path.join(test_opts.aux_out_folder, aux_checkpoint_id)
+    else:
+        aux_checkpoint_path = opts.aux_checkpoint_path
         
-    # # checkpoint_path = os.path.join(test_opts.pretrained_folder, checkpoint_id)
-    # if os.path.isfile(checkpoint_path):
-    #     checkpoint = torch.load(checkpoint_path)
-    #     model.load_state_dict(checkpoint["model"])
-    #     logger._print("=> loaded checkpoint '{}'".format(checkpoint_path), os.path.join(test_opts.out_folder, "logs.txt"))
-    # else:
-    #     logger._print("=> no checkpoint found at '{}'".format(checkpoint_path), os.path.join(test_opts.out_folder, "logs.txt"))
-    #     raise RuntimeError
+    # checkpoint_path = os.path.join(test_opts.pretrained_folder, checkpoint_id)
+    if os.path.isfile(checkpoint_path):
+        checkpoint = torch.load(checkpoint_path)
+        model.load_state_dict(checkpoint["state_dict"])
+        logger._print("=> loaded checkpoint '{}'".format(checkpoint_path), os.path.join(test_opts.out_folder, "logs.txt"))
+    else:
+        logger._print("=> no checkpoint found at '{}'".format(checkpoint_path), os.path.join(test_opts.out_folder, "logs.txt"))
+        raise RuntimeError
     
-    # if os.path.isfile(aux_checkpoint_path):
-    #     aux_checkpoint_path = torch.load(aux_checkpoint_path)
-    #     aux_model.load_state_dict(aux_checkpoint_path["model"])
-    #     logger._print("=> loaded checkpoint '{}'".format(aux_checkpoint_path), os.path.join(test_opts.out_folder, "logs.txt"))
-    # else:
-    #     logger._print("=> no checkpoint found at '{}'".format(aux_checkpoint_path), os.path.join(test_opts.out_folder, "logs.txt"))
-    #     raise RuntimeError
+    if os.path.isfile(aux_checkpoint_path):
+        aux_checkpoint = torch.load(aux_checkpoint_path)
+        aux_model.load_state_dict(aux_checkpoint["state_dict"])
+        logger._print("=> loaded checkpoint '{}'".format(aux_checkpoint_path), os.path.join(test_opts.out_folder, "logs.txt"))
+    else:
+        logger._print("=> no checkpoint found at '{}'".format(aux_checkpoint_path), os.path.join(test_opts.out_folder, "logs.txt"))
+        raise RuntimeError
 
     if opts.devise or opts.barzdenzler:
         summary, _ = run_nn(test_loader, model, loss_function, distances, classes, opts, 0, 0, emb_layer, embeddings_mat, is_inference=True)
