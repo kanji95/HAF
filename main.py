@@ -83,7 +83,7 @@ if __name__ == "__main__":
     parser.add_argument("--rerank",default=0,type=int,help='whether to use CRM or not')
     parser.add_argument("--checkpoint_path",default=None,type=str,help='path to the best checkpoint file')
     parser.add_argument("--aux_checkpoint_path",default=None,type=str,help='path to the best checkpoint file')
-    
+    parser.add_argument("--class_limit",default=100,type=int,help='semi supervised')
     opts = parser.parse_args()
 
     # setting the path of level-5 distances and pickle file.

@@ -16,7 +16,7 @@ from torchvision import transforms, datasets
 from MBM.better_mistakes.data.transforms import train_transforms, val_transforms, build_transform
 from MBM.better_mistakes.trees import load_hierarchy, get_weighting, load_distances, get_classes
 
-from .inaturalist_loader import iNaturalist
+from .inaturalist_loader import iNaturalist, Semi_inaturalist
 from .tiered_imagenet_loader import TieredImagenetH
 
 def is_sorted(x):
@@ -30,8 +30,10 @@ def train_data_loader(opts):
         transform_val = transforms.Compose([ToTensor()])
         train_dataset, val_dataset = get_cifar100(train_dir, transform_train=transform_train, transform_val=transform_val)
     elif "inaturalist19" in opts.data:
-        train_dataset = iNaturalist(root=opts.data_path, mode="train", transform=train_transforms(opts.target_size, opts.data, augment=opts.data_augmentation, normalize=True), taxonomy=opts.taxonomy)
-        val_dataset = iNaturalist(root=opts.data_path, mode="validation", transform=val_transforms(opts.data, normalize=True, resize=opts.target_size), taxonomy=opts.taxonomy)
+        # train_dataset = iNaturalist(root=opts.data_path, mode="train", transform=train_transforms(opts.target_size, opts.data, augment=opts.data_augmentation, normalize=True), taxonomy=opts.taxonomy)
+        # val_dataset = iNaturalist(root=opts.data_path, mode="validation", transform=val_transforms(opts.data, normalize=True, resize=opts.target_size), taxonomy=opts.taxonomy)
+        train_dataset = Semi_inaturalist(root=opts.data_path, mode="train", transform=train_transforms(opts.target_size, opts.data, augment=opts.data_augmentation, normalize=True), taxonomy=opts.taxonomy, class_limit=opts.class_limit)
+        val_dataset = Semi_inaturalist(root=opts.data_path, mode="validation", transform=val_transforms(opts.data, normalize=True, resize=opts.target_size), taxonomy=opts.taxonomy, class_limit=opts.class_limit)
     elif "tiered-imagenet" in opts.data:
         train_dataset = TieredImagenetH(root=opts.data_path, mode="train", transform=train_transforms(opts.target_size, opts.data, augment=opts.data_augmentation, normalize=True), is_parent=opts.is_parent)
         val_dataset = TieredImagenetH(root=opts.data_path, mode="val", transform=val_transforms(opts.data, normalize=True, resize=opts.target_size), is_parent=opts.is_parent)
