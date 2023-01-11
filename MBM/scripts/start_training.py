@@ -253,7 +253,8 @@ def main_worker(gpus_per_node, opts):
                 best_accuracy = summary_val["accuracy_top/01"]
                 print(f"Best accuracy @{epoch} is {best_accuracy}%")
                 _save_best_checkpoint(state, epoch, opts.out_folder)
-            if (opts.loss == "cross-entropy") and (63.3 < summary_val["accuracy_top/01"] < 63.5):
+            # if (opts.loss == "cross-entropy") and (63.3 < summary_val["accuracy_top/01"] < 63.5):
+            if (opts.loss == "cross-entropy") and (epoch == 0 or epoch == 90):
                 _save_checkpoint(state, opts.out_folder, epoch=epoch)
             print("\nSummary for epoch %04d (for val set):" % epoch)
             pp.pprint(summary_val)
