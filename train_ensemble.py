@@ -191,7 +191,7 @@ if __name__ == "__main__":
     model = init_model_on_gpu(gpus_per_node, opts, distances)
     
     # Define the ensemble
-    ensemble = FusionClassifier(
+    ensemble = BaggingClassifier(
         estimator=model,               # estimator is your pytorch model
         n_estimators=2,                        # number of base estimators
     )
@@ -218,3 +218,7 @@ if __name__ == "__main__":
     # Evaluate the ensemble
     acc = ensemble.evaluate(val_loader) 
     print(f"Network Accuracy: {acc}")
+    
+    state = {"arch": opts.arch, "state_dict": ensemble.state_dict()}
+    filename = os.path.join(opts.out_folder, "checkpoint.pth.tar")
+    torch.save(state, filename)
