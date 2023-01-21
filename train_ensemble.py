@@ -178,7 +178,7 @@ if __name__ == "__main__":
         opts.epochs = int(round(opts.num_training_steps / num_batches))
 
     # print(classes)
-    opts.num_classes = len(classes)
+    opts.num_classes = train_dataset.num_classes
     print("num_classes: ", opts.num_classes)
 
     # shuffle hierarchy nodes
@@ -191,7 +191,7 @@ if __name__ == "__main__":
     model = init_model_on_gpu(gpus_per_node, opts, distances)
     
     # Define the ensemble
-    ensemble = FusionClassifier(
+    ensemble = SnapshotEnsembleClassifier(
         estimator=model,               # estimator is your pytorch model
         n_estimators=2,                        # number of base estimators
     )
