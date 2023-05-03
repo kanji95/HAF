@@ -56,6 +56,9 @@ def init_model_on_gpu(gpus_per_node, opts, distances=None):
             model = custom_resnet18.ResNet18_ours_l12_cejsd_wtconst(model, feature_size=600, num_classes=[608, 607, 584, 510, 422, 270, 159, 86, 35, 21, 5, 2], gpu=opts.gpu)
         elif opts.loss == "ours-l12-cejsd-wtconst-dissim":
             model = custom_resnet18.ResNet18_ours_l12_cejsd_wtconst_dissim(model, feature_size=600, num_classes=[608, 607, 584, 510, 422, 270, 159, 86, 35, 21, 5, 2], gpu=opts.gpu)
+    elif opts.arch == "vision_transformer":
+        model = models.vit_b_16(pretrained=True)
+        model.heads = torch.nn.Sequential(torch.nn.Linear(in_features=768, out_features=opts.num_classes, bias=True))
     else:
         # model.fc = torch.nn.Sequential(torch.nn.Dropout(opts.dropout), torch.nn.Linear(in_features=feature_dim, out_features=opts.num_classes, bias=True))
         model.fc = torch.nn.Linear(in_features=feature_dim, out_features=opts.num_classes)
