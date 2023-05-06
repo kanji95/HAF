@@ -34,7 +34,7 @@ from MBM.better_mistakes.trees import load_hierarchy, get_weighting, load_distan
 from util import data_loader, logger
 from util.data_loader import is_sorted
 
-CUSTOM_MODELS = ["custom_resnet18", "wide_resnet"]
+CUSTOM_MODELS = ["custom_resnet18", "custom_resnet50," "wide_resnet"]
 MODEL_NAMES = sorted(name for name in models.__dict__ if name.islower() and not name.startswith("__") and callable(models.__dict__[name]))
 MODEL_NAMES.extend(CUSTOM_MODELS)
 LOSS_NAMES = ["cross-entropy", "soft-labels", "hierarchical-cross-entropy", "cosine-distance", "ranking-loss", "cosine-plus-xent", "yolo-v2",
@@ -375,7 +375,7 @@ def _select_optimizer(model, opts):
                 ], momentum=0.9, weight_decay=5e-4)
         if opts.data == "inaturalist19-224":
             if opts.loss == "cross-entropy" or opts.loss == "yolo-v2":
-                if opts.arch == "custom_resnet18":
+                if opts.arch == "custom_resnet18" or opts.arch == "custom_resnet50":
                     return torch.optim.SGD([
                         {'params': model.classifier_3.parameters(), 'lr': 0.1},
                         {'params': model.features_1.parameters(), 'lr': 0.1},
