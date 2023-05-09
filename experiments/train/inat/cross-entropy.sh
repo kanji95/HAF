@@ -3,3 +3,5 @@
 python main.py --start training --arch custom_resnet18 --batch-size 256 --epochs 100 --loss cross-entropy --optimizer custom_sgd --data inaturalist19-224 --workers 16 --output out/inat/cross-entropy/order/seed0 --seed 0 --taxonomy order --pretrained
 
 # python main.py --start training --arch custom_resnet18 --batch-size 256 --epochs 100 --loss cross-entropy --optimizer custom_sgd --data inaturalist19-224 --workers 16 --output out/inat/cross-entropy/semi_super/cl_10/seed0 --seed 0 --taxonomy species --pretrained --class_limit 10
+
+python main.py --start training --arch custom_resnet50 --batch-size 256 --epochs 100 --loss cross-entropy --optimizer custom_sgd --data inaturalist19-224 --workers 16 --output out/inat/cross-entropy/species/resnet50_seed1 --seed 1 --taxonomy species --pretrained
