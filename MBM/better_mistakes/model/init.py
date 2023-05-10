@@ -1,9 +1,11 @@
 import torch.cuda
 import torch.nn as nn
 from torchvision import models
-from util.arch import wideresnet, custom_wideresnet, custom_resnet18
 
 import timm
+
+from util.arch import wideresnet, custom_wideresnet, custom_resnet18
+
 
 def init_model_on_gpu(gpus_per_node, opts, distances=None):
     arch_dict = models.__dict__
@@ -58,24 +60,69 @@ def init_model_on_gpu(gpus_per_node, opts, distances=None):
             model = custom_resnet18.ResNet18_ours_l12_cejsd_wtconst(model, feature_size=600, num_classes=[608, 607, 584, 510, 422, 270, 159, 86, 35, 21, 5, 2], gpu=opts.gpu)
         elif opts.loss == "ours-l12-cejsd-wtconst-dissim":
             model = custom_resnet18.ResNet18_ours_l12_cejsd_wtconst_dissim(model, feature_size=600, num_classes=[608, 607, 584, 510, 422, 270, 159, 86, 35, 21, 5, 2], gpu=opts.gpu)
+            
     elif opts.arch == "resnet50":
-        model = models.resnet50(pretrained=True)
+        model = timm.create_model('resnet50', pretrained=True)
         model.fc = nn.Linear(in_features=2048, out_features=opts.num_classes)
-    elif opts.arch == "custom_resnet50":
-        model = models.resnet50(pretrained=True)
-        model = custom_resnet18.ResNet50(model, feature_size=2400, num_classes=opts.num_classes)
-    elif opts.arch == "vision_transformer":
-        model = models.vit_b_16(pretrained=True)
-        model.heads = nn.Sequential(nn.Linear(in_features=768, out_features=opts.num_classes, bias=True))
-    elif opts.arch == "mlp_mixer":
-        model = timm.create_model('mixer_b16_224', pretrained=True)
-        model.head = nn.Linear(in_features=768, out_features=opts.num_classes)
-    elif opts.arch == "efficientnet":
+    elif opts.arch == "resnet101":
+        model = timm.create_model('resnet101', pretrained=True)
+        model.fc = nn.Linear(in_features=2048, out_features=opts.num_classes)
+        
+    elif opts.arch == "mobilenet":
+        model = timm.create_model('mobilenetv3_small_050', pretrained=True)
+        model.classifier = nn.Linear(in_features=1024, out_features=opts.num_classes)
+        
+    elif opts.arch == "densenet":
+        model = timm.create_model('densenet121', pretrained=True)
+        model.classifier = nn.Linear(in_features=1024, out_features=opts.num_classes)
+        
+    elif opts.arch == "efficientnet_b0":
         model = timm.create_model('efficientnet_b0', pretrained=True)
         model.classifier = nn.Linear(in_features=1280, out_features=opts.num_classes)
-    elif opts.arch == "swin_transformer":
+    elif opts.arch == "efficientnet_b1":
+        model = timm.create_model('efficientnet_b1', pretrained=True)
+        model.classifier = nn.Linear(in_features=1280, out_features=opts.num_classes)
+    elif opts.arch == "efficientnet_b2":
+        model = timm.create_model('efficientnet_b2', pretrained=True)
+        model.classifier = nn.Linear(in_features=1408, out_features=opts.num_classes)
+    elif opts.arch == "efficientnet_b3":
+        model = timm.create_model('efficientnet_b3', pretrained=True)
+        model.classifier = nn.Linear(in_features=1536, out_features=opts.num_classes)
+        
+    elif opts.arch == "deit_tiny":
+        model = timm.create_model('deit_tiny_patch16_224', pretrained=True)
+        model.head = nn.Linear(in_features=192, out_features=opts.num_classes)
+    elif opts.arch == "deit_small":
+        model = timm.create_model('deit_small_patch16_224', pretrained=True)
+        model.head = nn.Linear(in_features=384, out_features=opts.num_classes)
+    elif opts.arch == "deit_base":
+        model = timm.create_model('deit_base_patch16_224', pretrained=True)
+        model.head = nn.Linear(in_features=768, out_features=opts.num_classes)
+        
+    elif opts.arch == "vit_tiny":
+        model = timm.create_model('vit_tiny_patch16_224', pretrained=True)
+        model.head = nn.Linear(in_features=192, out_features=opts.num_classes)
+    elif opts.arch == "vit_small":
+        model = timm.create_model('vit_small_patch32_224', pretrained=True)
+        model.head = nn.Linear(in_features=384, out_features=opts.num_classes)
+    elif opts.arch == "vit_base":
+        model = timm.create_model('vit_base_patch32_224', pretrained=True)
+        model.head = nn.Linear(in_features=768, out_features=opts.num_classes)
+        
+    elif opts.arch == "mlp_mixer":
+        model = timm.create_model('mixer_b16_224', pretrained=True)
+        model.head = nn.Linear(in_features=768, out_features=opts.num_classes)    
+    
+    elif opts.arch == "swin_tiny":
+        model = timm.create_model('swin_tiny_patch4_window7_224', pretrained=True)
+        model.head = nn.Linear(in_features=768, out_features=opts.num_classes)
+    elif opts.arch == "swin_small":
+        model = timm.create_model('swin_small_patch4_window7_224', pretrained=True)
+        model.head = nn.Linear(in_features=768, out_features=opts.num_classes)
+    elif opts.arch == "swin_base":
         model = timm.create_model('swin_base_patch4_window7_224', pretrained=True)
         model.head = nn.Linear(in_features=1024, out_features=opts.num_classes)
+        
     else:
         # model.fc = torch.nn.Sequential(torch.nn.Dropout(opts.dropout), torch.nn.Linear(in_features=feature_dim, out_features=opts.num_classes, bias=True))
         model.fc = torch.nn.Linear(in_features=feature_dim, out_features=opts.num_classes)

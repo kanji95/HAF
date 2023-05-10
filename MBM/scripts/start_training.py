@@ -34,7 +34,8 @@ from MBM.better_mistakes.trees import load_hierarchy, get_weighting, load_distan
 from util import data_loader, logger
 from util.data_loader import is_sorted
 
-CUSTOM_MODELS = ["custom_resnet18", "custom_resnet50," "wide_resnet", "vision_transformer", "mlp_mixer", "efficientnet", "swin_transformer"]
+CUSTOM_MODELS = ["custom_resnet18", "custom_resnet50," "wide_resnet", "mobilenet", "densenet", "efficientnet_b0", "efficientnet_b1", "efficientnet_b2", "efficientnet_b3", 
+                 "deit_tiny", "deit_small", "deit_base", "vit_tiny", "vit_small", "vit_base", "mlp_mixer", "swin_tiny", "swin_small", "swin_base"]
 MODEL_NAMES = sorted(name for name in models.__dict__ if name.islower() and not name.startswith("__") and callable(models.__dict__[name]))
 MODEL_NAMES.extend(CUSTOM_MODELS)
 LOSS_NAMES = ["cross-entropy", "soft-labels", "hierarchical-cross-entropy", "cosine-distance", "ranking-loss", "cosine-plus-xent", "yolo-v2",
