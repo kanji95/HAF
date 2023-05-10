@@ -121,7 +121,7 @@ def main_worker(gpus_per_node, opts):
 
     # setup optimizer
     optimizer = _select_optimizer(model, opts)
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.5, min_lr=1e-6, patience=6)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.5, min_lr=5e-7, patience=6)
 
     # load from checkpoint if existing
     steps = _load_checkpoint(opts, model, optimizer)
