@@ -121,6 +121,7 @@ def main_worker(gpus_per_node, opts):
 
     # setup optimizer
     optimizer = _select_optimizer(model, opts)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.5, min_lr=1e-6, patience=6)
 
     # load from checkpoint if existing
     steps = _load_checkpoint(opts, model, optimizer)
@@ -254,12 +255,14 @@ def main_worker(gpus_per_node, opts):
                 best_accuracy = summary_val["accuracy_top/01"]
                 print(f"Best accuracy @{epoch} is {best_accuracy}%")
                 _save_best_checkpoint(state, epoch, opts.out_folder)
-            if (opts.loss == "cross-entropy") and (63.5 < summary_val["accuracy_top/01"] < 63.7):
-            # if (opts.loss == "cross-entropy") and (epoch == 90):
+            # if (opts.loss == "cross-entropy") and (63.5 < summary_val["accuracy_top/01"] < 63.7):
+            if (opts.loss == "cross-entropy") and (epoch == 90):
                 _save_checkpoint(state, opts.out_folder, epoch=epoch)
             print("\nSummary for epoch %04d (for val set):" % epoch)
             pp.pprint(summary_val)
             print("\n\n")
+            
+            scheduler.step(summary_val['loss/cross-entropy'])
 
 def _load_checkpoint(opts, model, optimizer):
     if os.path.isfile(os.path.join(opts.out_folder, "checkpoint.pth.tar")):
@@ -437,8 +440,8 @@ if __name__ == "__main__":
     parser.add_argument("--loss", default="cross-entropy", choices=LOSS_NAMES, help="loss type: | ".join(LOSS_NAMES))
     parser.add_argument("--optimizer", default="adam_amsgrad", choices=OPTIMIZER_NAMES,
                         help="loss type: | ".join(OPTIMIZER_NAMES))
-    parser.add_argument("--lr", default=1e-5, type=float, help="initial learning rate of optimizer")
-    parser.add_argument("--weight_decay", default=0.0, type=float, help="weight decay of optimizer")
+    parser.add_argument("--lr", default=1e-4, type=float, help="initial learning rate of optimizer")
+    parser.add_argument("--weight_decay", default=1e-5, type=float, help="weight decay of optimizer")
     parser.add_argument("--pretrained", type=boolean, default=True, help="start from ilsvrc12/imagenet model weights")
     parser.add_argument("--pretrained_folder", type=str, default=None,
                         help="folder or file from which to load the network weights")
