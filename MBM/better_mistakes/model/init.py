@@ -1,7 +1,9 @@
 import torch.cuda
-import torch.nn
+import torch.nn as nn
 from torchvision import models
 from util.arch import wideresnet, custom_wideresnet, custom_resnet18
+
+import timm
 
 def init_model_on_gpu(gpus_per_node, opts, distances=None):
     arch_dict = models.__dict__
@@ -58,13 +60,22 @@ def init_model_on_gpu(gpus_per_node, opts, distances=None):
             model = custom_resnet18.ResNet18_ours_l12_cejsd_wtconst_dissim(model, feature_size=600, num_classes=[608, 607, 584, 510, 422, 270, 159, 86, 35, 21, 5, 2], gpu=opts.gpu)
     elif opts.arch == "resnet50":
         model = models.resnet50(pretrained=True)
-        model.fc = torch.nn.Linear(in_features=2048, out_features=opts.num_classes)
+        model.fc = nn.Linear(in_features=2048, out_features=opts.num_classes)
     elif opts.arch == "custom_resnet50":
         model = models.resnet50(pretrained=True)
         model = custom_resnet18.ResNet50(model, feature_size=2400, num_classes=opts.num_classes)
     elif opts.arch == "vision_transformer":
         model = models.vit_b_16(pretrained=True)
-        model.heads = torch.nn.Sequential(torch.nn.Linear(in_features=768, out_features=opts.num_classes, bias=True))
+        model.heads = nn.Sequential(nn.Linear(in_features=768, out_features=opts.num_classes, bias=True))
+    elif opts.arch == "mlp_mixer":
+        model = timm.create_model('mixer_b16_224', pretrained=True)
+        model.head = nn.Linear(in_features=768, out_features=opts.num_classes)
+    elif opts.arch == "efficientnet":
+        model = timm.create_model('efficientnet_b0', pretrained=True)
+        model.classifier = nn.Linear(in_features=1280, out_features=opts.num_classes)
+    elif opts.arch == "swin_transformer":
+        model = timm.create_model('swin_base_patch4_window7_224', pretrained=True)
+        model.head = nn.Linear(in_features=1024, out_features=opts.num_classes)
     else:
         # model.fc = torch.nn.Sequential(torch.nn.Dropout(opts.dropout), torch.nn.Linear(in_features=feature_dim, out_features=opts.num_classes, bias=True))
         model.fc = torch.nn.Linear(in_features=feature_dim, out_features=opts.num_classes)

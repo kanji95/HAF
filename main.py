@@ -18,7 +18,7 @@ from MBM.scripts import start_training, start_testing
 from util import logger
 
 TASKS = ["training", "testing"]
-CUSTOM_MODELS = ["custom_resnet18", "custom_resnet50", "wide_resnet", "vision_transformer"]
+CUSTOM_MODELS = ["custom_resnet18", "custom_resnet50", "wide_resnet", "vision_transformer", "mlp_mixer", "efficientnet", "swin_transformer"]
 MODEL_NAMES = sorted(name for name in models.__dict__ if name.islower() and not name.startswith("__") and callable(models.__dict__[name]))
 MODEL_NAMES.extend(CUSTOM_MODELS)
 # l5 refers to loss of level-5 for CIFAR-100, l7 refers to loss of level-7 for iNaturalist-19, l12 refers to loss of level-12 for tiered-imageneget-224.
